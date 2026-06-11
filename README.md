@@ -13,3 +13,5 @@ smart-home-security/
 │   └── script.js
 │
 └── templates/
+
+
