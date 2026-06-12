@@ -1,3 +1,4 @@
 sudo su
 apt update
 python3 --version
+apt install python3-pip python3-venv
