@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aegis Smart Home Security</title>
+    <title>Aegis Smart Home Security System</title>
     <link rel="stylesheet" href="/static/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -90,7 +90,7 @@
             <div class="alerts" style="margin-top: 0;">
                 <h2><i class="fa fa-history"></i> Live Threat Tracking Stream</h2>
                 <ul id="alerts">
-                    <li class="system-log">📋 System monitoring initialized.</li>
+                    <li class="system-log">📋 System monitoring initialized. Connected to local storage.</li>
                 </ul>
             </div>
         </div>
@@ -98,9 +98,11 @@
         <div id="view-logs" class="page-view" style="display: none;">
             <div class="chart-box" style="margin-top: 0;">
                 <h2><i class="fa fa-database"></i> Archived Events (TinyDB Engine)</h2>
-                <button id="refreshLogsBtn" class="refresh-btn"><i class="fa fa-sync"></i> Pull Database Archives</button>
+                <button id="refreshLogsBtn" class="refresh-btn">
+                    <i class="fa fa-sync"></i> Pull Database Archives
+                </button>
                 <ul id="dbLogsList">
-                    <li class="placeholder-text">Click the button above to query telemetry entries.</li>
+                    <li class="placeholder-text">Click the button above to query telemetry entries directly out of your backend server filesystem db.json.</li>
                 </ul>
             </div>
         </div>
