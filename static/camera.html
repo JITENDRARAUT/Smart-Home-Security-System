@@ -5,16 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aegis Camera Node Transmitter</title>
     <style>
-        body { background: #0f172a; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
-        .box { max-width: 450px; margin: 30px auto; background: #1e293b; padding: 20px; border-radius: 16px; border: 1px solid #334155; }
+        body { background: #0f172a; color: white; font-family: system-ui, sans-serif; text-align: center; padding: 20px; }
+        .wrapper { max-width: 500px; margin: 0 auto; background: #1e293b; padding: 20px; border-radius: 16px; border: 1px solid #334155; }
         video { width: 100%; border-radius: 12px; border: 2px solid #38bdf8; background: #000; margin-top: 15px; }
-        .status { margin: 15px 0; padding: 12px; border-radius: 8px; font-weight: bold; background: #0f172a; color: #38bdf8; }
+        .status { margin: 15px 0; padding: 12px; border-radius: 8px; font-weight: bold; background: #0f172a; color: #38bdf8; font-size: 0.9rem; }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h2>🎥 Mobile Camera Transmitter Node</h2>
-        <div class="status" id="camStatus">Connecting to security network...</div>
+    <div class="wrapper">
+        <h2>🎥 Aegis Phone Camera Node</h2>
+        <div class="status" id="camStatus">Awaiting system deployment handshake...</div>
         <video id="phoneVideo" autoplay playsinline muted></video>
         <canvas id="captureCanvas" style="display:none;"></canvas>
     </div>
@@ -25,42 +25,46 @@
         const context = canvas.getContext('2d');
         const statusText = document.getElementById('camStatus');
 
-        // Dynamically adapts to Port 80 automatically!
+        // Hook up uplink channel pipeline using local execution variables
         const cameraWsUrl = `ws://${window.location.host}/ws-camera`;
         const cameraSocket = new WebSocket(cameraWsUrl);
 
         cameraSocket.onopen = () => {
-            statusText.textContent = "🟢 Connected. Accessing phone camera hardware...";
-            startStreaming();
+            statusText.textContent = "🟢 Connected to Cloud Infrastructure. Initializing Lenses...";
+            initializeHardwareCamera();
         };
 
         cameraSocket.onclose = () => {
-            statusText.textContent = "🔴 Connection dropped from cloud server.";
+            statusText.textContent = "🔴 Disconnected from pipeline cloud routing.";
         };
 
-        function startStreaming() {
+        function initializeHardwareCamera() {
+            // Asks mobile browser directly to hook up environmental rear cameras 
             navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: "environment", width: 480, height: 360 }, 
+                video: { facingMode: "environment", width: 640, height: 480 }, 
                 audio: false 
             })
             .then((stream) => {
                 video.srcObject = stream;
-                statusText.textContent = "🟢 Streaming Live Data Loop Active";
+                statusText.textContent = "🟢 Live Broadcast Sync: Broadcasting frames to dashboard monitor.";
                 
+                // Interval rendering compression cycle sending frames roughly 10 times a second (~10FPS)
                 setInterval(() => {
                     if (cameraSocket.readyState === WebSocket.OPEN) {
-                        canvas.width = 400;
-                        canvas.height = 300;
+                        canvas.width = 480;
+                        canvas.height = 360;
+                        
+                        // Copy image matrix onto work area canvas bounding boxes
                         context.drawImage(video, 0, 0, canvas.width, canvas.height);
                         
-                        // Optimized compression prevents server crashes
-                        const compressedFrame = canvas.toDataURL('image/jpeg', 0.4);
-                        cameraSocket.send(compressedFrame);
+                        // Downsample layout data matrix directly into high speed, optimized Base64 Strings
+                        const frameDataString = canvas.toDataURL('image/jpeg', 0.5);
+                        cameraSocket.send(frameDataString);
                     }
-                }, 120);
+                }, 100);
             })
             .catch(err => {
-                statusText.textContent = "🔴 Camera error: " + err;
+                statusText.textContent = "🔴 Camera Access Denied. Ensure HTTPS or check permissions: " + err;
             });
         }
     </script>
