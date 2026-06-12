@@ -1,85 +1,111 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-
-<title>Smart Home Security</title>
-
-<link rel="stylesheet" href="style.css">
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aegis Smart Home Security</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
-
 <body>
 
-<div class="sidebar">
+    <div class="sidebar">
+        <h2><i class="fa-solid fa-shield-halved"></i> Aegis Sec</h2>
+        <ul>
+            <li class="active"><i class="fa fa-home"></i> Dashboard</li>
+            <li><i class="fa fa-camera"></i> Cameras</li>
+            <li><i class="fa fa-bell"></i> Alerts</li>
+            <li><i class="fa fa-history"></i> Logs</li>
+        </ul>
+        <div class="sidebar-footer">
+            <button id="panicBtn" class="panic-btn"><i class="fa fa-exclamation-triangle"></i> PANIC ALARM</button>
+        </div>
+    </div>
 
-<h2>🏠 Smart Security</h2>
+    <div class="main">
+        <div class="top">
+            <div>
+                <h1>Home Security Dashboard</h1>
+                <p id="connectionStatus" class="status-connecting">Syncing with system core...</p>
+            </div>
+            <div class="system-toggle">
+                <span>System Armed</span>
+                <label class="switch">
+                    <input type="checkbox" id="systemArmed" checked>
+                    <span class="slider round"></span>
+                </label>
+            </div>
+        </div>
 
-<ul>
-<li><i class="fa fa-home"></i> Dashboard</li>
-<li><i class="fa fa-camera"></i> Cameras</li>
-<li><i class="fa fa-bell"></i> Alerts</li>
-<li><i class="fa fa-history"></i> Logs</li>
-</ul>
+        <div id="view-dashboard" class="page-view">
+            <div class="cards">
+                <div class="card" id="card-motion">
+                    <div class="card-icon"><i class="fa fa-running"></i></div>
+                    <div>
+                        <h2>Motion Sensor</h2>
+                        <h1 id="motion">Safe</h1>
+                    </div>
+                </div>
+                <div class="card" id="card-door">
+                    <div class="card-icon"><i class="fa fa-door-closed" id="door-icon"></i></div>
+                    <div>
+                        <h2>Main Door</h2>
+                        <h1 id="door">Closed</h1>
+                    </div>
+                </div>
+                <div class="card" id="card-alarm">
+                    <div class="card-icon"><i class="fa fa-bell"></i></div>
+                    <div>
+                        <h2>Alarm Status</h2>
+                        <h1 id="alarm">OFF</h1>
+                    </div>
+                </div>
+            </div>
 
-</div>
+            <div class="dashboard-grid">
+                <div class="chart-box">
+                    <h2><i class="fa fa-chart-line"></i> Activity Analytics</h2>
+                    <canvas id="securityChart"></canvas>
+                </div>
+                <div class="camera">
+                    <h2><i class="fa fa-video"></i> Live Camera Feed <span class="live-indicator">● LIVE</span></h2>
+                    <div class="video-container">
+                        <img id="liveVideoFeed" src="https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=700&q=80" alt="Camera Feed">
+                    </div>
+                </div>
+            </div>
+        </div>
 
-<div class="main">
+        <div id="view-cameras" class="page-view" style="display: none;">
+            <div class="camera" style="margin-top: 0;">
+                <h2><i class="fa fa-video"></i> Main Entrance Feed</h2>
+                <div class="video-container">
+                    <img id="liveVideoFeedAlt" src="https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=1200&q=80" alt="Camera Feed">
+                </div>
+            </div>
+        </div>
 
-<div class="top">
+        <div id="view-alerts" class="page-view" style="display: none;">
+            <div class="alerts" style="margin-top: 0;">
+                <h2><i class="fa fa-history"></i> Live Threat Tracking Stream</h2>
+                <ul id="alerts">
+                    <li class="system-log">📋 System monitoring initialized.</li>
+                </ul>
+            </div>
+        </div>
 
-<h1>Home Security Dashboard</h1>
+        <div id="view-logs" class="page-view" style="display: none;">
+            <div class="chart-box" style="margin-top: 0;">
+                <h2><i class="fa fa-database"></i> Archived Events (TinyDB Engine)</h2>
+                <button id="refreshLogsBtn" class="refresh-btn"><i class="fa fa-sync"></i> Pull Database Archives</button>
+                <ul id="dbLogsList">
+                    <li class="placeholder-text">Click the button above to query telemetry entries.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
 
-</div>
-
-<div class="cards">
-
-<div class="card motion">
-<h2>Motion</h2>
-<h1 id="motion">Safe</h1>
-</div>
-
-<div class="card door">
-<h2>Door</h2>
-<h1 id="door">Closed</h1>
-</div>
-
-<div class="card alarm">
-<h2>Alarm</h2>
-<h1 id="alarm">OFF</h1>
-</div>
-
-</div>
-
-<div class="chart-box">
-
-<canvas id="securityChart"></canvas>
-
-</div>
-
-<div class="camera">
-
-<h2>Camera Feed</h2>
-
-<img src="https://placehold.co/700x350">
-
-</div>
-
-<div class="alerts">
-
-<h2>Live Alerts</h2>
-
-<ul id="alerts"></ul>
-
-</div>
-
-</div>
-
-<script src="script.js"></script>
-
+    <script src="/static/script.js"></script>
 </body>
 </html>
