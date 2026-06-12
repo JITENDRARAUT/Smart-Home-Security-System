@@ -59,3 +59,19 @@ Now, go back to your transmitter page on your phone:
 Plaintext
 http://34.201.143.168/camera-stream
 Your phone will pop up an explicit permission message asking for Camera Access. Click Allow, and your live video lens feed will pop right up onto your screen and stream straight to your desktop dashboard!
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+🔍 Why is the Connection Still Timing Out?
+Even with compressed JPEG image blocks, FastAPI WebSockets have a default built-in timeout limit. If the network experiences a tiny jitter or if a heavy video frame takes a millisecond too long to process, Uvicorn assumes the client has crashed, throws an internal error 1011, and drops the connection.
+
+To make your home security dashboard run for days without ever dropping or disconnecting, we need to explicitly inject ping/pong keepalive parameters into your Uvicorn startup engine. This forces the server to constantly heartbeat the connection open.
+
+🛠️ The Permanent Production Fix
+You don't need to change any HTML or JavaScript files. We just need to launch your python server with explicit keepalive rules.
+
+Stop your server with Ctrl + C, and restart it using this exact command structure:
+
+Bash
+uvicorn app:app --host 0.0.0.0 --port 80 --ws-ping-interval 20 --ws-ping-timeout 20
