@@ -1,3 +1,46 @@
+🛠️ The 2 Fixes You Need
+Fix 1: Install the Missing WebSocket Library
+Look at the repeated warning in your terminal:
+
+WARNING: No supported WebSocket library detected. Please use "pip install 'uvicorn[standard]'" ...
+
+Uvicorn needs a helper package to read and process WebSockets. Because it's missing, Uvicorn is rejecting the browser's handshake request.
+
+How to fix it:
+
+Shut down your running server in the terminal by pressing Ctrl + C.
+
+Run this command to install the required WebSocket support:
+
+Bash
+pip install websockets
+(Alternatively, you can run pip install "uvicorn[standard]")
+
+Fix 2: The HTTP 404 Not Found fallback
+Look at the line below the warning:
+
+INFO: ... - "GET /ws HTTP/1.1" 404 Not Found
+
+Because Uvicorn doesn't have the WebSocket library installed, it treated your WebSocket request (ws://...) like a normal website link (http://...). Since there is no standard web page at /ws, it threw a 404 Not Found error.
+
+🚀 Let's Bring It All Together
+Once you install the library, restart everything in this exact order:
+
+Start your backend server again:
+
+Bash
+uvicorn app:app --reload
+Go back to your browser window at http://127.0.0.1:8000/.
+
+Press Ctrl + F5 (or Cmd + Shift + R on Mac) to force a hard refresh.
+
+The red connection banner should disappear instantly, replaced by your green "🟢 Secure Real-Time Link Connected" badge, and your toggles, panic button, and random data generator will start working seamlessly!
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 🚀 How to Run and Watch the Live Feed
 Because your server uses Port 80, you don't need to specify :8000 at the end of your URLs anymore!
 
