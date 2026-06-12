@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Smart Home Security</title>
+
+<link rel="stylesheet" href="style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+<h2>🏠 Smart Security</h2>
+
+<ul>
+<li><i class="fa fa-home"></i> Dashboard</li>
+<li><i class="fa fa-camera"></i> Cameras</li>
+<li><i class="fa fa-bell"></i> Alerts</li>
+<li><i class="fa fa-history"></i> Logs</li>
+</ul>
+
+</div>
+
+<div class="main">
+
+<div class="top">
+
+<h1>Home Security Dashboard</h1>
+
+</div>
+
+<div class="cards">
+
+<div class="card motion">
+<h2>Motion</h2>
+<h1 id="motion">Safe</h1>
+</div>
+
+<div class="card door">
+<h2>Door</h2>
+<h1 id="door">Closed</h1>
+</div>
+
+<div class="card alarm">
+<h2>Alarm</h2>
+<h1 id="alarm">OFF</h1>
+</div>
+
+</div>
+
+<div class="chart-box">
+
+<canvas id="securityChart"></canvas>
+
+</div>
+
+<div class="camera">
+
+<h2>Camera Feed</h2>
+
+<img src="https://placehold.co/700x350">
+
+</div>
+
+<div class="alerts">
+
+<h2>Live Alerts</h2>
+
+<ul id="alerts"></ul>
+
+</div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
