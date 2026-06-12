@@ -1,3 +1,4 @@
+// Dom Element Declarations
 const motionText = document.getElementById("motion");
 const doorText = document.getElementById("door");
 const alarmText = document.getElementById("alarm");
@@ -5,17 +6,20 @@ const alertsList = document.getElementById("alerts");
 const connectionStatus = document.getElementById("connectionStatus");
 const doorIcon = document.getElementById("door-icon");
 
+// Target Card Elements
 const cardMotion = document.getElementById("card-motion");
 const cardDoor = document.getElementById("card-door");
 const cardAlarm = document.getElementById("card-alarm");
 
+// Inputs / Features Switches
 const systemArmed = document.getElementById("systemArmed");
 const panicBtn = document.getElementById("panicBtn");
 
+// Dedicated Live Target Element Feed Image Hooks
 const liveVideoFeed = document.getElementById("liveVideoFeed");
 const liveVideoFeedAlt = document.getElementById("liveVideoFeedAlt");
 
-// Chart.js Layout
+// Instantiate Analytics Workspace Line Graph Layout
 const ctx = document.getElementById('securityChart').getContext('2d');
 const myChart = new Chart(ctx, {
     type: 'line',
@@ -40,9 +44,9 @@ const myChart = new Chart(ctx, {
     }
 });
 
+// Setup Main Core Dynamic Connection Engine
 let socket;
 function connectSecurityStream() {
-    // Automatically uses window location host to ensure Port 80 connection compatibility
     const wsUri = `ws://${window.location.host}/ws`;
     socket = new WebSocket(wsUri);
 
@@ -54,12 +58,14 @@ function connectSecurityStream() {
     socket.onmessage = (event) => {
         const serverPayload = JSON.parse(event.data);
         
+        // INTERCEPT POINT: Check if the incoming packet is a live video frame chunk
         if (serverPayload.type === "video_frame") {
-            if (liveVideoFeed) liveVideoFeed.src = serverPayload.image;
-            if (liveVideoFeedAlt) liveVideoFeedAlt.src = serverPayload.image;
-            return; 
+            liveVideoFeed.src = serverPayload.image;
+            liveVideoFeedAlt.src = serverPayload.image;
+            return; // Halt logic bubble processing here
         }
 
+        // If system is disabled locally drop telemetry processing updates
         if (!systemArmed.checked) {
             clearDashboardVisuals();
             return;
@@ -77,7 +83,7 @@ function connectSecurityStream() {
 function handleNetworkDisruption() {
     connectionStatus.textContent = "🔴 Connection Dropped. Retrying backup routing...";
     connectionStatus.className = "status-connecting";
-    setTimeout(connectSecurityStream, 4000); 
+    setTimeout(connectSecurityStream, 5000); 
 }
 
 function clearDashboardVisuals() {
@@ -146,7 +152,7 @@ panicBtn.addEventListener('click', () => {
     appendLoggedAlert("🔥 PANIC OVERRIDE MANUAL EVENT RECEIVED", "danger", clickTime);
 });
 
-// Tab navigation routing
+// --- SIDEBAR TAB VIEW SWITCH ROUTING ENGINE ---
 const menuItems = document.querySelectorAll(".sidebar ul li");
 const pageViews = document.querySelectorAll(".page-view");
 
@@ -156,12 +162,18 @@ menuItems.forEach((item) => {
         item.classList.add("active");
 
         const viewTarget = item.textContent.trim().toLowerCase();
+
         pageViews.forEach((view) => {
-            view.style.display = view.id === `view-${viewTarget}` ? "block" : "none";
+            if (view.id === `view-${viewTarget}`) {
+                view.style.display = "block";
+            } else {
+                view.style.display = "none";
+            }
         });
     });
 });
 
+// --- HISTORICAL SEARCH PARSER LOGIC FROM TINYDB ---
 const refreshLogsBtn = document.getElementById("refreshLogsBtn");
 const dbLogsList = document.getElementById("dbLogsList");
 
@@ -170,20 +182,25 @@ refreshLogsBtn.addEventListener("click", async () => {
     try {
         const response = await fetch("/logs");
         const logs = await response.json();
+        
         dbLogsList.innerHTML = ""; 
+        
         if (logs.length === 0) {
-            dbLogsList.innerHTML = "<li class='placeholder-text'>No database records found.</li>";
+            dbLogsList.innerHTML = "<li class='placeholder-text'>No entries found inside your db.json database yet.</li>";
             return;
         }
+
+        // Limit rendering stack size down to the latest 20 updates for performance
         logs.reverse().slice(0, 20).forEach(entry => {
             let li = document.createElement("li");
             li.className = "db-log-item";
-            li.innerHTML = `<span>🔒 Motion: <b>${entry.motion || 'Safe'}</b> | Door: <b>${entry.door || 'Closed'}</b> | Alarm: <b>${entry.alarm || 'OFF'}</b></span> <small>${entry.timestamp || 'N/A'}</small>`;
+            li.innerHTML = `<span>🔒 Motion: <b>${entry.motion || 'Safe'}</b> | Door: <b>${entry.door || 'Closed'}</b> | Alarm: <b>${entry.alarm || 'OFF'}</b></span> <small>${entry.timestamp || 'Just Now'}</small>`;
             dbLogsList.appendChild(li);
         });
     } catch (error) {
-        dbLogsList.innerHTML = "<li class='placeholder-text' style='color: #ef4444;'>Failed to pull database records.</li>";
+        dbLogsList.innerHTML = "<li class='placeholder-text' style='color: #ef4444;'>Failed to pull archives from backend filesystem endpoint.</li>";
     }
 });
 
+// Fire connection pipeline
 connectSecurityStream();
