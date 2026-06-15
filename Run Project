@@ -14,3 +14,7 @@ nano static/index.html
 nano static/script.js
 nano static/style.css
 uvicorn app:app --host 0.0.0.0 --port 80
+
+
+
+
