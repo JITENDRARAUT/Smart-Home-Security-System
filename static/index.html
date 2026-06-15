@@ -42,22 +42,32 @@
             <div class="cards">
                 <div class="card" id="card-motion">
                     <div class="card-icon"><i class="fa fa-running"></i></div>
-                    <div>
-                        <h2>Motion Sensor</h2>
-                        <h1 id="motion">Safe</h1>
+                    <div style="width: 100%;">
+                        <h2>Motion Target: <span id="detected-object-tag" style="color: #38bdf8; font-weight: bold;">None</span></h2>
+                        <h1 id="motion" style="margin-bottom: 5px;">Safe</h1>
+                        <div class="mute-controls">
+                            <button onclick="muteCurrentObject()" class="btn-mute">Mute/Lock Object</button>
+                            <button onclick="clearMuteRegistry()" class="btn-clear-mute">Reset Filters</button>
+                        </div>
                     </div>
                 </div>
+                
                 <div class="card" id="card-door">
                     <div class="card-icon"><i class="fa fa-door-closed" id="door-icon"></i></div>
-                    <div>
-                        <h2>Main Door</h2>
-                        <h1 id="door">Closed</h1>
+                    <div style="width: 100%;">
+                        <h2>Main Door Control</h2>
+                        <h1 id="door" style="margin-bottom: 8px;">Closed</h1>
+                        <div class="door-controls">
+                            <button onclick="setDoorState('Open')" class="btn-door-open">Open</button>
+                            <button onclick="setDoorState('Closed')" class="btn-door-close">Lock</button>
+                        </div>
                     </div>
                 </div>
+                
                 <div class="card" id="card-alarm">
                     <div class="card-icon"><i class="fa fa-bell"></i></div>
                     <div>
-                        <h2>Alarm Status</h2>
+                        <h2>Alarm Panel Status</h2>
                         <h1 id="alarm">OFF</h1>
                     </div>
                 </div>
@@ -102,7 +112,7 @@
                     <i class="fa fa-sync"></i> Pull Database Archives
                 </button>
                 <ul id="dbLogsList">
-                    <li class="placeholder-text">Click the button above to query telemetry entries directly out of your backend server filesystem db.json.</li>
+                    <li class="placeholder-text">Click the button above to query telemetry entries.</li>
                 </ul>
             </div>
         </div>
