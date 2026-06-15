@@ -1,25 +1,23 @@
-// Dom Element Declarations
 const motionText = document.getElementById("motion");
+const objectTagText = document.getElementById("detected-object-tag");
 const doorText = document.getElementById("door");
 const alarmText = document.getElementById("alarm");
 const alertsList = document.getElementById("alerts");
 const connectionStatus = document.getElementById("connectionStatus");
 const doorIcon = document.getElementById("door-icon");
 
-// Target Card Elements
 const cardMotion = document.getElementById("card-motion");
 const cardDoor = document.getElementById("card-door");
 const cardAlarm = document.getElementById("card-alarm");
 
-// Inputs / Features Switches
 const systemArmed = document.getElementById("systemArmed");
 const panicBtn = document.getElementById("panicBtn");
 
-// Dedicated Live Target Element Feed Image Hooks
 const liveVideoFeed = document.getElementById("liveVideoFeed");
 const liveVideoFeedAlt = document.getElementById("liveVideoFeedAlt");
 
-// Instantiate Analytics Workspace Line Graph Layout
+let currentTrackedObjectClass = "None";
+
 const ctx = document.getElementById('securityChart').getContext('2d');
 const myChart = new Chart(ctx, {
     type: 'line',
@@ -44,7 +42,6 @@ const myChart = new Chart(ctx, {
     }
 });
 
-// Setup Main Core Dynamic Connection Engine
 let socket;
 function connectSecurityStream() {
     const wsUri = `ws://${window.location.host}/ws`;
@@ -58,20 +55,33 @@ function connectSecurityStream() {
     socket.onmessage = (event) => {
         const serverPayload = JSON.parse(event.data);
         
-        // INTERCEPT POINT: Check if the incoming packet is a live video frame chunk
         if (serverPayload.type === "video_frame") {
-            liveVideoFeed.src = serverPayload.image;
-            liveVideoFeedAlt.src = serverPayload.image;
-            return; // Halt logic bubble processing here
-        }
-
-        // If system is disabled locally drop telemetry processing updates
-        if (!systemArmed.checked) {
-            clearDashboardVisuals();
+            if (liveVideoFeed) liveVideoFeed.src = serverPayload.image;
+            if (liveVideoFeedAlt) liveVideoFeedAlt.src = serverPayload.image;
             return;
         }
 
         if (serverPayload.type === "telemetry") {
+            // FIXED: Always capture and push real-time door component status transformations first
+            doorText.textContent = serverPayload.door;
+            if (serverPayload.door === "Open") {
+                cardDoor.className = "card status-warning";
+                doorIcon.className = "fa fa-door-open";
+            } else {
+                cardDoor.className = "card status-safe";
+                doorIcon.className = "fa fa-door-closed";
+            }
+
+            // If the system toggle is switched off, strip motion alerts but keep door active
+            if (!systemArmed.checked) {
+                motionText.textContent = "Standby";
+                objectTagText.textContent = "None";
+                alarmText.textContent = "DISABLED";
+                cardMotion.className = "card";
+                cardAlarm.className = "card";
+                return;
+            }
+
             processIncomingTelemetry(serverPayload);
         }
     };
@@ -88,6 +98,7 @@ function handleNetworkDisruption() {
 
 function clearDashboardVisuals() {
     motionText.textContent = "Standby";
+    objectTagText.textContent = "None";
     doorText.textContent = "Standby";
     alarmText.textContent = "DISABLED";
     cardMotion.className = "card";
@@ -95,27 +106,52 @@ function clearDashboardVisuals() {
     cardAlarm.className = "card";
 }
 
+async function setDoorState(targetState) {
+    try {
+        await fetch('/api/door', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ state: targetState })
+        });
+    } catch(err) { console.error(err); }
+}
+
+async function muteCurrentObject() {
+    if (currentTrackedObjectClass && currentTrackedObjectClass !== "None") {
+        try {
+            await fetch('/api/mute-object', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ object_class: currentTrackedObjectClass })
+            });
+            appendLoggedAlert(`🔇 Locked filter for: ${currentTrackedObjectClass.toUpperCase()}`, "warning", "System");
+        } catch(err) { console.error(err); }
+    }
+}
+
+async function clearMuteRegistry() {
+    try {
+        await fetch('/api/clear-mutes', { method: 'POST' });
+        appendLoggedAlert("🔄 Whitelist filters reset.", "system-log", "System");
+    } catch(err) { console.error(err); }
+}
+
+window.setDoorState = setDoorState;
+window.muteCurrentObject = muteCurrentObject;
+window.clearMuteRegistry = clearMuteRegistry;
+
 function processIncomingTelemetry(data) {
     const time = data.timestamp || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
     motionText.textContent = data.motion;
-    doorText.textContent = data.door;
-    alarmText.textContent = data.alarm;
+    currentTrackedObjectClass = data.detected_class || "None";
+    objectTagText.textContent = currentTrackedObjectClass.toUpperCase();
 
     if (data.motion === "Detected") {
         cardMotion.className = "card status-danger";
-        appendLoggedAlert("🚨 Corridor Motion Sensor Intercepted", "danger", time);
+        appendLoggedAlert(`📡 Tracked Object Viewbound: [${objectTagText.textContent}]`, "danger", time);
     } else {
         cardMotion.className = "card status-safe";
-    }
-
-    if (data.door === "Open") {
-        cardDoor.className = "card status-warning";
-        doorIcon.className = "fa fa-door-open";
-        appendLoggedAlert("⚠️ Main Perimeter Access Point Opened", "warning", time);
-    } else {
-        cardDoor.className = "card status-safe";
-        doorIcon.className = "fa fa-door-closed";
     }
 
     if (data.alarm === "ON") {
@@ -126,7 +162,6 @@ function processIncomingTelemetry(data) {
 
     myChart.data.labels.push(time);
     myChart.data.datasets[0].data.push(data.alarm === "ON" ? 1 : 0);
-
     if (myChart.data.labels.length > 8) {
         myChart.data.labels.shift();
         myChart.data.datasets[0].data.shift();
@@ -136,71 +171,51 @@ function processIncomingTelemetry(data) {
 
 function appendLoggedAlert(message, priority, timestamp) {
     let liElement = document.createElement("li");
-    liElement.className = priority === "danger" ? "alert-danger" : "alert-warning";
+    liElement.className = priority === "danger" ? "alert-danger" : (priority === "warning" ? "alert-warning" : "system-log");
     liElement.innerHTML = `<span>${message}</span> <small>${timestamp}</small>`;
     alertsList.prepend(liElement);
-    
-    if(alertsList.children.length > 6) {
-        alertsList.removeChild(alertsList.lastChild);
-    }
+    if(alertsList.children.length > 6) { alertsList.removeChild(alertsList.lastChild); }
 }
 
 panicBtn.addEventListener('click', () => {
     if(!systemArmed.checked) return;
-    const clickTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    processIncomingTelemetry({ type: "telemetry", motion: "Detected", door: "Open", alarm: "ON", timestamp: clickTime });
-    appendLoggedAlert("🔥 PANIC OVERRIDE MANUAL EVENT RECEIVED", "danger", clickTime);
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({ action: "trigger_panic" }));
+    }
 });
 
-// --- SIDEBAR TAB VIEW SWITCH ROUTING ENGINE ---
 const menuItems = document.querySelectorAll(".sidebar ul li");
 const pageViews = document.querySelectorAll(".page-view");
-
 menuItems.forEach((item) => {
     item.addEventListener("click", () => {
         menuItems.forEach(i => i.classList.remove("active"));
         item.classList.add("active");
-
         const viewTarget = item.textContent.trim().toLowerCase();
-
         pageViews.forEach((view) => {
-            if (view.id === `view-${viewTarget}`) {
-                view.style.display = "block";
-            } else {
-                view.style.display = "none";
-            }
+            view.style.display = view.id === `view-${viewTarget}` ? "block" : "none";
         });
     });
 });
 
-// --- HISTORICAL SEARCH PARSER LOGIC FROM TINYDB ---
 const refreshLogsBtn = document.getElementById("refreshLogsBtn");
 const dbLogsList = document.getElementById("dbLogsList");
-
 refreshLogsBtn.addEventListener("click", async () => {
     dbLogsList.innerHTML = "<li class='placeholder-text'>Querying storage records...</li>";
     try {
         const response = await fetch("/logs");
         const logs = await response.json();
-        
         dbLogsList.innerHTML = ""; 
-        
         if (logs.length === 0) {
-            dbLogsList.innerHTML = "<li class='placeholder-text'>No entries found inside your db.json database yet.</li>";
+            dbLogsList.innerHTML = "<li class='placeholder-text'>No database records found.</li>";
             return;
         }
-
-        // Limit rendering stack size down to the latest 20 updates for performance
         logs.reverse().slice(0, 20).forEach(entry => {
             let li = document.createElement("li");
             li.className = "db-log-item";
-            li.innerHTML = `<span>🔒 Motion: <b>${entry.motion || 'Safe'}</b> | Door: <b>${entry.door || 'Closed'}</b> | Alarm: <b>${entry.alarm || 'OFF'}</b></span> <small>${entry.timestamp || 'Just Now'}</small>`;
+            li.innerHTML = `<span>🔒 Motion: <b>${entry.motion || 'Safe'}</b> (${entry.detected_class || 'None'}) | Door: <b>${entry.door || 'Closed'}</b> | Alarm: <b>${entry.alarm || 'OFF'}</b></span> <small>${entry.timestamp || 'Just Now'}</small>`;
             dbLogsList.appendChild(li);
         });
-    } catch (error) {
-        dbLogsList.innerHTML = "<li class='placeholder-text' style='color: #ef4444;'>Failed to pull archives from backend filesystem endpoint.</li>";
-    }
+    } catch (error) { dbLogsList.innerHTML = "<li class='placeholder-text' style='color: #ef4444;'>Error loading database logs.</li>"; }
 });
 
-// Fire connection pipeline
 connectSecurityStream();
