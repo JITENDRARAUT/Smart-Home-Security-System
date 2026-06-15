@@ -83,11 +83,13 @@ async def broadcast_system_telemetry():
     }
     db.insert(payload)
     
+    # Fix 1: Create a snapshot list of active dashboards to avoid runtime size modification errors
     for dashboard in list(active_dashboards):
         try:
             await dashboard.send_json(payload)
-        except:
-            pass
+        except Exception:
+            # Fix 2: Silently sweep away stale sockets if a send is attempted mid-closure
+            active_dashboards.discard(dashboard)
 
 @app.websocket("/ws")
 async def sensor_websocket_endpoint(websocket: WebSocket):
@@ -95,6 +97,7 @@ async def sensor_websocket_endpoint(websocket: WebSocket):
     active_dashboards.add(websocket)
     
     try:
+        # Initial handshake sync
         timestamp = datetime.now().strftime("%I:%M:%S %p")
         await websocket.send_json({
             "type": "telemetry",
@@ -110,7 +113,9 @@ async def sensor_websocket_endpoint(websocket: WebSocket):
                 await trigger_mobile_audio_siren()
                 
     except WebSocketDisconnect:
-        active_dashboards.remove(websocket)
+        active_dashboards.discard(websocket)
+    except Exception:
+        active_dashboards.discard(websocket)
 
 @app.websocket("/ws-camera")
 async def camera_websocket_endpoint(websocket: WebSocket):
@@ -121,18 +126,20 @@ async def camera_websocket_endpoint(websocket: WebSocket):
         while True:
             data = await websocket.receive_json()
             
+            # Frame Forwarding Engine
             if "image" in data:
+                # Fix 1 & 2: Use an isolated list copy and guard against half-closed sockets
                 for dashboard in list(active_dashboards):
                     try:
                         await dashboard.send_json({"type": "video_frame", "image": data["image"]})
-                    except:
-                        pass
+                    except Exception:
+                        active_dashboards.discard(dashboard)
             
+            # Vision Logic Processing Engine
             if "motion" in data:
                 incoming_motion = data["motion"]
                 incoming_class = data.get("object_class", "unknown").strip().lower()
                 
-                # Check whitelist filter to completely block muted objects
                 if incoming_motion == "Detected" and incoming_class in muted_objects:
                     if system_states["motion"] != "Safe":
                         system_states["motion"] = "Safe"
@@ -147,11 +154,13 @@ async def camera_websocket_endpoint(websocket: WebSocket):
                 await broadcast_system_telemetry()
                         
     except WebSocketDisconnect:
-        active_cameras.remove(websocket)
+        active_cameras.discard(websocket)
+    except Exception:
+        active_cameras.discard(websocket)
 
 async def trigger_mobile_audio_siren():
     for camera in list(active_cameras):
         try:
             await camera.send_json({"command": "play_siren"})
-        except:
-            pass
+        except Exception:
+            active_cameras.discard(camera)
