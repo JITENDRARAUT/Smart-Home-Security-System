@@ -19,5 +19,44 @@ nano static/style.css
 uvicorn app:app --host 0.0.0.0 --port 80
 
 
+----------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------
+
+http://34.201.143.168/camera-stream
 
 
+
+🛠️ The Fix: Use Chrome's Flag Override
+You do not need to buy a domain name or set up complicated SSL certificates to bypass this. Google Chrome has a hidden developer feature built exactly for this situation, letting you tell your phone to treat your cloud server's IP as a secure zone.
+
+Follow these quick steps on your phone:
+
+1. Open flags in mobile Chrome
+Open the Chrome application on your mobile device, type this address into your URL text bar, and hit enter:
+
+Plaintext
+chrome://flags
+2. Search for unsecure origins
+In the search bar at the top of the internal page that appears, type:
+
+Plaintext
+unsafely-treat-insecure-origin-as-secure
+3. Enable and add your server IP
+Change the dropdown box value from Disabled to Enabled.
+
+In the text box right below it, paste your exact server link structure:
+
+Plaintext
+http://34.201.143.168
+4. Relaunch your browser
+Click the blue Relaunch button that pops up at the bottom of your phone screen. This restarts the Chrome engine with your new developer rules active.
+
+🏁 Test the Feed
+Now, go back to your transmitter page on your phone:
+
+Plaintext
+http://34.201.143.168/camera-stream
+Your phone will pop up an explicit permission message asking for Camera Access. Click Allow, and your live video lens feed will pop right up onto your screen and stream straight to your desktop dashboard!
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
