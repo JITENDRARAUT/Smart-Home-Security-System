@@ -306,3 +306,8 @@ input:checked + .slider:before { transform: translateX(24px); }
     from { transform: translateY(-10px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
 }
+
+
+
+
+
