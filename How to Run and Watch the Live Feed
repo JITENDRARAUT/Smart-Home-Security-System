@@ -118,3 +118,5 @@ Stop your server with Ctrl + C, and restart it using this exact command structur
 
 Bash
 uvicorn app:app --host 0.0.0.0 --port 80 --ws-ping-interval 20 --ws-ping-timeout 20
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
