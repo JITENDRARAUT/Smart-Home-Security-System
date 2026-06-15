@@ -1,18 +1,35 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from pydantic import BaseModel
 from tinydb import TinyDB
 from datetime import datetime
 import asyncio
-import random
 
 app = FastAPI()
-
-# Auto-instantiates local TinyDB file backend records
 db = TinyDB("db.json")
 
-# Mounting static assets folder securely
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# System State Tracks
+system_states = {
+    "motion": "Safe",
+    "detected_class": "None",
+    "door": "Closed",
+    "alarm": "OFF"
+}
+
+# Whitelist registry tracking muted/locked object tags
+muted_objects = set()
+
+active_dashboards = set()
+active_cameras = set()
+
+class DoorToggleRequest(BaseModel):
+    state: str
+
+class MuteObjectRequest(BaseModel):
+    object_class: str
 
 @app.get("/")
 async def home():
@@ -20,70 +37,121 @@ async def home():
 
 @app.get("/camera-stream")
 async def camera_stream():
-    """Endpoint accessed by your phone browser to turn it into a camera transmitter"""
     return FileResponse("static/camera.html")
 
 @app.get("/logs")
 async def get_logs():
     return db.all()
 
-# Connection tracking registries
-active_dashboards = set()
+@app.post("/api/door")
+async def toggle_door(request: DoorToggleRequest):
+    if request.state in ["Open", "Closed"]:
+        system_states["door"] = request.state
+        evaluate_alarm_logic()
+        await broadcast_system_telemetry()
+        return {"status": "success", "door": system_states["door"]}
+    return {"status": "error"}
+
+@app.post("/api/mute-object")
+async def mute_object(request: MuteObjectRequest):
+    obj_tag = request.object_class.strip().lower()
+    if obj_tag and obj_tag != "none":
+        muted_objects.add(obj_tag)
+        return {"status": "success", "muted_list": list(muted_objects)}
+    return {"status": "error", "message": "Invalid object tag"}
+
+@app.post("/api/clear-mutes")
+async def clear_mutes():
+    muted_objects.clear()
+    return {"status": "success"}
+
+def evaluate_alarm_logic():
+    if system_states["motion"] == "Detected" or system_states["door"] == "Open":
+        system_states["alarm"] = "ON"
+    else:
+        system_states["alarm"] = "OFF"
+
+async def broadcast_system_telemetry():
+    timestamp = datetime.now().strftime("%I:%M:%S %p")
+    payload = {
+        "type": "telemetry",
+        "motion": system_states["motion"],
+        "detected_class": system_states["detected_class"],
+        "door": system_states["door"],
+        "alarm": system_states["alarm"],
+        "timestamp": timestamp
+    }
+    db.insert(payload)
+    
+    for dashboard in list(active_dashboards):
+        try:
+            await dashboard.send_json(payload)
+        except:
+            pass
 
 @app.websocket("/ws")
 async def sensor_websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     active_dashboards.add(websocket)
-    print("🔒 Main Dashboard UI viewport paired with telemetry stream.")
     
     try:
+        timestamp = datetime.now().strftime("%I:%M:%S %p")
+        await websocket.send_json({
+            "type": "telemetry",
+            **system_states,
+            "timestamp": timestamp
+        })
+        
         while True:
-            # Generate realistic synchronized sensor payloads
-            motion_status = random.choice(["Detected", "Safe"])
-            door_status = random.choice(["Open", "Closed"])
-            
-            # Logic: If any door opens or motion trips, trigger alarm state
-            alarm_status = "ON" if (motion_status == "Detected" or door_status == "Open") else "OFF"
-            timestamp = datetime.now().strftime("%I:%M:%S %p")
-
-            payload = {
-                "type": "telemetry",
-                "motion": motion_status,
-                "door": door_status,
-                "alarm": alarm_status,
-                "timestamp": timestamp
-            }
-
-            # Commit events directly into the database
-            db.insert(payload)
-
-            # Send data out directly onto the dashboard viewports
-            await websocket.send_json(payload)
-            await asyncio.sleep(3)
-            
+            data = await websocket.receive_json()
+            if data.get("action") == "trigger_panic":
+                system_states["alarm"] = "ON"
+                await broadcast_system_telemetry()
+                await trigger_mobile_audio_siren()
+                
     except WebSocketDisconnect:
         active_dashboards.remove(websocket)
-        print("🔓 Main Dashboard client connection cleanly terminated.")
 
 @app.websocket("/ws-camera")
 async def camera_websocket_endpoint(websocket: WebSocket):
-    """Secondary WebSocket pipeline handling high-frequency video frame routing"""
     await websocket.accept()
-    print("🎥 Mobile Phone Camera node authenticated. Transmitting video...")
+    active_cameras.add(websocket)
     
     try:
         while True:
-            # Receive base64 high-speed compressed JPEG frame lines from your phone browser
-            base64_frame = await websocket.receive_text()
+            data = await websocket.receive_json()
             
-            # Instantly broadcast that frame to all open main dashboards running
-            for dashboard in active_dashboards:
-                try:
-                    await dashboard.send_json({
-                        "type": "video_frame",
-                        "image": base64_frame
-                    })
-                except:
-                    pass # Clean skip if a single dashboard viewport stalls out
+            if "image" in data:
+                for dashboard in list(active_dashboards):
+                    try:
+                        await dashboard.send_json({"type": "video_frame", "image": data["image"]})
+                    except:
+                        pass
+            
+            if "motion" in data:
+                incoming_motion = data["motion"]
+                incoming_class = data.get("object_class", "unknown").strip().lower()
+                
+                # Check whitelist filter to completely block muted objects
+                if incoming_motion == "Detected" and incoming_class in muted_objects:
+                    if system_states["motion"] != "Safe":
+                        system_states["motion"] = "Safe"
+                        system_states["detected_class"] = f"{incoming_class} (Muted)"
+                        system_states["alarm"] = "OFF"
+                        await broadcast_system_telemetry()
+                    continue
+
+                system_states["motion"] = incoming_motion
+                system_states["detected_class"] = incoming_class if incoming_motion == "Detected" else "None"
+                evaluate_alarm_logic()
+                await broadcast_system_telemetry()
+                        
     except WebSocketDisconnect:
-        print("🛑 Mobile Phone Camera node disconnected from uplink stream.")
+        active_cameras.remove(websocket)
+
+async def trigger_mobile_audio_siren():
+    for camera in list(active_cameras):
+        try:
+            await camera.send_json({"command": "play_siren"})
+        except:
+            pass
