@@ -110,5 +110,6 @@ Tap Allow when the system security modal overlays pop up requesting camera lens 
 Your smartphone camera lens view matrix will immediately connect, push image packets to the network server backend, and live stream updates directly onto your master command administrative station panel canvas workspace!
 
 
-
+## 📝 API Integration Endpoints Reference Matrix
+Access MethodRouting Path Endpoint LocationAuthorization Access TierStructural Process Execution ActionGET/Guest / OperatorDelivers primary administration dashboard workspace client view index pageGET/camera-streamActive Remote NodeSpins up internal video pipeline client capture script engine page assetsGET/logsSystem OperatorFetches a dataset payload dictionary listing the past 20 logged historical metrics traces
 
