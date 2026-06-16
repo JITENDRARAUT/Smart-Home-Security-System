@@ -17,6 +17,7 @@ The system includes a dark-themed monitoring interface and features a sandboxed 
 
 
 
+ 
 fastapi-lab/
 ├── venv/                      # Isolated virtual environment binaries
 ├── app.py                     # Main ASGI routing engine, state machines, & WebSockets
@@ -73,3 +74,41 @@ Mobile Browser ──► http://<Server-IP>/camera-stream ──❌ CAMERA PERMI
 
                   [ CHROME FLAG INTERVENTION ]
 Mobile Browser ──► chrome://flags (Safelist IP)      ──✅ LIVE STREAM ACTIVE
+
+
+
+
+
+
+
+## 🛠️ Google Chrome Override Configurations Protocol Steps:
+
+Open the Google Chrome app on your streaming mobile smartphone device.
+
+In the top URL web-address text container box input parameters path, enter this exact command line and hit enter:
+
+Plaintext
+chrome://flags
+Use the interface internal top-level container query element bar to hunt for this specific string identifier rule variable:
+
+Plaintext
+Insecure origins treated as secure
+Modify the action field value selection from Disabled to Enabled.
+
+Paste your exact cloud deployment target server web destination address path pattern directly into the configuration text block right below the choice bar:
+
+Plaintext
+[http://34.201.143.168](http://34.201.143.168)
+Tap the blue Relaunch action notification button at the bottom of the display window layout interface space to cycle the internal web framework.
+
+Return back to your remote camera streaming device node interface location target link:
+
+Plaintext
+[http://34.201.143.168/camera-stream](http://34.201.143.168/camera-stream)
+Tap Allow when the system security modal overlays pop up requesting camera lens access permissions.
+
+Your smartphone camera lens view matrix will immediately connect, push image packets to the network server backend, and live stream updates directly onto your master command administrative station panel canvas workspace!
+
+
+
+
