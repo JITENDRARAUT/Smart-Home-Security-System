@@ -53,3 +53,14 @@ source venv/bin/activate
 
 # 6. Pull down optimized framework components and socket management drivers
 pip install fastapi uvicorn tinydb jinja2 websockets
+
+
+
+
+
+### 🏎️ Starting the App Core Server Host Engine
+
+To host on a standard public address port without connection drops during heavy background asset packet processing, boot Uvicorn with **keepalive ping metadata arguments**:
+
+```bash
+uvicorn app:app --host 0.0.0.0 --port 80 --ws-ping-interval 20 --ws-ping-timeout 20
