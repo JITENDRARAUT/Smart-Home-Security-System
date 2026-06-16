@@ -64,3 +64,12 @@ To host on a standard public address port without connection drops during heavy 
 
 ```bash
 uvicorn app:app --host 0.0.0.0 --port 80 --ws-ping-interval 20 --ws-ping-timeout 20
+
+
+## 📱 Mobile Camera Streaming Sandbox Workaround
+
+[ SECURITY SANDBOX BLOCK ]
+Mobile Browser ──► http://<Server-IP>/camera-stream ──❌ CAMERA PERMISSION DENIED
+
+                  [ CHROME FLAG INTERVENTION ]
+Mobile Browser ──► chrome://flags (Safelist IP)      ──✅ LIVE STREAM ACTIVE
