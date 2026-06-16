@@ -17,8 +17,6 @@ The system includes a dark-themed monitoring interface and features a sandboxed 
 
 
 
-
- 
 fastapi-lab/
 ├── venv/                      # Isolated virtual environment binaries
 ├── app.py                     # Main ASGI routing engine, state machines, & WebSockets
