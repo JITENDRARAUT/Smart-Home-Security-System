@@ -4,3 +4,13 @@ Aegis Sec is a resilient, modern, low-latency home security and surveillance das
 
 The system includes a dark-themed monitoring interface and features a sandboxed mobile pipeline that repurposes standard mobile devices into active edge camera streams without needing expensive domain names or SSL setup.
 
+---
+
+## 🏗️ Core Architectural Overview
+
+```text
+ [ IoT Edge: ESP32 ] ────(WebSockets: Telemetry)───► [ FastAPI ASGI Engine ] ◄───(Chart.js / DOM Updates)─── [ Admin Desktop Web Dashboard ]
+ [ Smartphone Camera ] ──(WebSockets: MJPEG Frames)─►        (app.py)        ├───(Persisted Log Registry)─── [ TinyDB Storage Engine ]
+                                                             │               └───(API Parameter Control)──── [ HTTP POST Endpoints ]
+                                                             ▼
+                                                [ System Event Alerts Engine ] ───► (Twilio SMS & SMTP Mailing Channels)
