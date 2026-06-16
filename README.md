@@ -111,5 +111,10 @@ Your smartphone camera lens view matrix will immediately connect, push image pac
 
 
 ## 📝 API Integration Endpoints Reference Matrix
-Access MethodRouting Path Endpoint LocationAuthorization Access TierStructural Process Execution ActionGET/Guest / OperatorDelivers primary administration dashboard workspace client view index pageGET/camera-streamActive Remote NodeSpins up internal video pipeline client capture script engine page assetsGET/logsSystem OperatorFetches a dataset payload dictionary listing the past 20 logged historical metrics traces
+
+| Access Method | Routing Path Endpoint Location | Authorization Access Tier | Structural Process Execution Action |
+| :--- | :--- | :--- | :--- |
+| **GET** | `/` | Guest / Operator | Delivers primary administration dashboard workspace client view index page |
+| **GET** | `/camera-stream` | Active Remote Node | Spins up internal video pipeline client capture script engine page assets |
+| **GET** | `/logs` | System Operator | Fetches a dataset payload dictionary listing the past 20 logged historical metrics traces |
 
