@@ -26,3 +26,30 @@ fastapi-lab/
     ├── camera.html            # Mobile Camera Stream Capture Interface
     ├── script.js              # State Engine, UI Drivers, & Resilient WS pipelines
     └── style.css              # Dark-theme presentation layout
+
+
+
+
+# 🚀 Deployment Playbook
+
+Follow these quick commands to spin up this infrastructure ecosystem on an unconfigured Linux machine (such as an AWS EC2 or DigitalOcean Ubuntu Droplet Instance):
+
+```bash
+# 1. Elevate process execution privileges to system superuser admin
+sudo su
+
+# 2. Update repository maps to acquire modern component indices
+apt update -y
+
+# 3. Provision environment base runtime hooks: python execution variables and venv module isolation layers
+apt install python3-pip python3-venv -y
+
+# 4. Construct structural storage sandbox directory space
+mkdir fastapi-lab && cd fastapi-lab
+
+# 5. Initialize active Python virtual isolated container ecosystem
+python3 -m venv venv
+source venv/bin/activate
+
+# 6. Pull down optimized framework components and socket management drivers
+pip install fastapi uvicorn tinydb jinja2 websockets
