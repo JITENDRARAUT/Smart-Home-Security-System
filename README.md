@@ -6,6 +6,7 @@ The system includes a dark-themed monitoring interface and features a sandboxed 
 
 ---
 
+
 ## 🏗️ Core Architectural Overview
 
 ```text
