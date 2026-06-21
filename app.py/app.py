@@ -153,7 +153,6 @@ async def camera_websocket_endpoint(websocket: WebSocket):
                 evaluate_alarm_logic()
                 await broadcast_system_telemetry()
                 
-                        
     except WebSocketDisconnect:
         active_cameras.discard(websocket)
     except Exception:
