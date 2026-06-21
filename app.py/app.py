@@ -152,6 +152,7 @@ async def camera_websocket_endpoint(websocket: WebSocket):
                 system_states["detected_class"] = incoming_class if incoming_motion == "Detected" else "None"
                 evaluate_alarm_logic()
                 await broadcast_system_telemetry()
+                
                         
     except WebSocketDisconnect:
         active_cameras.discard(websocket)
