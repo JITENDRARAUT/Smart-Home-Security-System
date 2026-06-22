@@ -4,7 +4,7 @@ Aegis Sec is a resilient, modern, low-latency home security and surveillance das
 
 The system includes a dark-themed monitoring interface and features a sandboxed mobile pipeline that repurposes standard mobile devices into active edge camera streams without needing expensive domain names or SSL setup.
 
----
+----
 
 ## 🏗️ Core Architectural Overview
 
