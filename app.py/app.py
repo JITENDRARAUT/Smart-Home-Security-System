@@ -165,4 +165,4 @@ async def trigger_mobile_audio_siren():
             await camera.send_json({"command": "play_siren"})
         except Exception:
             active_cameras.discard(camera)
-a
+
