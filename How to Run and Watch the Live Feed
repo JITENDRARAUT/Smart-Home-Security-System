@@ -6,7 +6,7 @@ WARNING: No supported WebSocket library detected. Please use "pip install 'uvico
 
 Uvicorn needs a helper package to read and process WebSockets. Because it's missing, Uvicorn is rejecting the browser's handshake request.
 
-How to fix it:
+How to fix it: 
 
 Shut down your running server in the terminal by pressing Ctrl + C.
 
