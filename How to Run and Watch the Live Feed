@@ -10,7 +10,7 @@ How to fix it:
 
 Shut down your running server in the terminal by pressing Ctrl + C.
 
-Run this command to install the required WebSocket support:
+Run this command to install the required WebSocket support: 
 
 Bash
 pip install websockets
