@@ -6,7 +6,7 @@ const alertsList = document.getElementById("alerts");
 const connectionStatus = document.getElementById("connectionStatus");
 const doorIcon = document.getElementById("door-icon");
 
-const cardMotion = document.getElementById("card-motion");
+const cardMotion = document.getElementById("card-motion"); 
 const cardDoor = document.getElementById("card-door");
 const cardAlarm = document.getElementById("card-alarm");
 
