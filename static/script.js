@@ -3,7 +3,7 @@ const objectTagText = document.getElementById("detected-object-tag");
 const doorText = document.getElementById("door");
 const alarmText = document.getElementById("alarm");
 const alertsList = document.getElementById("alerts"); 
-const connectionStatus = document.getElementById("connectionStatus");
+const connectionStatus = document.getElementById("connectionStatus"); 
 const doorIcon = document.getElementById("door-icon");
 
 const cardMotion = document.getElementById("card-motion"); 
