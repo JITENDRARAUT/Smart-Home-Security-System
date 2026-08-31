@@ -6,7 +6,6 @@ from tinydb import TinyDB
 from datetime import datetime 
 import asyncio 
 
-
     
 app = FastAPI()   
 db = TinyDB("db.json")
