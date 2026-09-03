@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }  
-body { display: flex; background: #0f172a; color: #f8fafc; min-height: 100vh; } 
+body { display: flex; background: #0f172a; color: #f8fafc; min-height: 100vh; }  
 
 .sidebar { width: 260px; background: #1e293b; padding: 25px 20px; display: flex; flex-direction: column; justify-content: space-between; border-right: 1px solid #334155; }
 .sidebar h2 { color: #38bdf8; font-size: 1.5rem; margin-bottom: 35px; display: flex; align-items: center; gap: 10px; }
