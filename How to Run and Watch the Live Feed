@@ -12,7 +12,7 @@ Shut down your running server in the terminal by pressing Ctrl + C.
 
 Run this command to install the required WebSocket support: 
  
-Bash
+Bash 
 pip install websockets
 (Alternatively, you can run pip install "uvicorn[standard]")
 
