@@ -7,7 +7,7 @@ from datetime import datetime
 import asyncio 
             
                  
-app = FastAPI()     
+app = FastAPI()      
 db = TinyDB("db.json")
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
