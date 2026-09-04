@@ -8,7 +8,7 @@ import asyncio
             
                   
 app = FastAPI()      
-db = TinyDB("db.json")  
+db = TinyDB("db.json")   
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
