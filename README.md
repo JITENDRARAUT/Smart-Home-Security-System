@@ -8,7 +8,7 @@ The system includes a dark-themed monitoring interface and features a sandboxed 
   
 ## 🏗️ Core Architectural Overview     
      
-```text
+```text 
  [ IoT Edge: ESP32 ] ────(WebSockets: Telemetry)───► [ FastAPI ASGI Engine ] ◄───(Chart.js / DOM Updates)─── [ Admin Desktop Web Dashboard ]
  [ Smartphone Camera ] ──(WebSockets: MJPEG Frames)─►        (app.py)        ├───(Persisted Log Registry)─── [ TinyDB Storage Engine ]
                                                              │               └───(API Parameter Control)──── [ HTTP POST Endpoints ]
