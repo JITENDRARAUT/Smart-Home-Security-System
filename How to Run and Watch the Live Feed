@@ -14,7 +14,7 @@ Run this command to install the required WebSocket support:
  
 Bash 
 pip install websockets
-(Alternatively, you can run pip install "uvicorn[standard]")
+(Alternatively, you can run pip install "uvicorn[standard]") 
 
 Fix 2: The HTTP 404 Not Found fallback
 Look at the line below the warning:
