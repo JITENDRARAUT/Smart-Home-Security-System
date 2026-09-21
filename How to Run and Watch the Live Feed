@@ -8,7 +8,7 @@ Uvicorn needs a helper package to read and process WebSockets. Because it's miss
  
 How to fix it:              
 
-Shut down your running server in the terminal by pressing Ctrl + C.
+Shut down your running server in the terminal by pressing Ctrl + C. 
 
 Run this command to install the required WebSocket support: 
  
