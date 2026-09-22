@@ -13,7 +13,7 @@ Shut down your running server in the terminal by pressing Ctrl + C.
 Run this command to install the required WebSocket support: 
   
 Bash 
-pip install websockets
+pip install websockets 
 (Alternatively, you can run pip install "uvicorn[standard]") 
 
 Fix 2: The HTTP 404 Not Found fallback
